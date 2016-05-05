@@ -118,20 +118,21 @@ static void get_subfolders(
                            const char *dirname,
                            vector<string> &subfolders)
 {
-	TCHAR tchar_dirname[256];
-	_stprintf_s(tchar_dirname, _T("%S*"), dirname);
+	char globname[256];
+	sprintf(globname, "%s*", dirname);
 
-	WIN32_FIND_DATA  fd;///FindFastÇÃèâä˙åãâ 
-	HANDLE h = FindFirstFileEx(tchar_dirname, FindExInfoStandard,
+	WIN32_FIND_DATA  fd;
+	HANDLE h = FindFirstFileEx(globname, FindExInfoStandard,
 		&fd, FindExSearchNameMatch, NULL, 0);
-	//if (dir != NULL) {
+
 	do {
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-			continue;
+			if (string(fd.cFileName) == "." || string(fd.cFileName) == "..") {
+				continue;
+			}
 		}
-		else{
-			subfolders.push_back(string(fd.cFileName));
-		}
+		subfolders.push_back(string(fd.cFileName));
+
 	} while (FindNextFile(h, &fd));
 	FindClose(h);
 	sort(subfolders.begin(), subfolders.end());
